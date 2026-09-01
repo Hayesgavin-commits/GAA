@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#07121f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gavvas Astro">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Gavvas Astro Analyzer Mobile 1.2 PWA</title>
+<style>
+:root{
+  --bg:#06101b;--card:#0c1b2b;--card2:#10243a;--line:#1d3852;--text:#f2f7fb;
+  --muted:#91a8bc;--blue:#26a8ff;--cyan:#5dd9ff;--good:#36d17c;--warn:#ffcc4d;
+  --bad:#ff5a67;--shadow:0 12px 35px rgba(0,0,0,.27);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:760px;margin:0 auto;min-height:100vh}
+header{position:sticky;top:0;z-index:20;padding:14px 16px 12px;background:rgba(6,16,27,.92);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.06)}
+.brandrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{font-weight:850;font-size:21px;letter-spacing:-.4px}
+.version{font-size:11px;color:var(--muted);border:1px solid var(--line);padding:4px 8px;border-radius:999px}
+.place{margin-top:5px;font-size:13px;color:var(--cyan);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+main{padding:14px 14px 96px}
+.searchbox{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-bottom:12px}
+.searchbox input{min-width:0;border:1px solid var(--line);background:#0b1a29;color:var(--text);border-radius:14px;padding:13px 14px;outline:none}
+.iconbtn,.primary{border:1px solid var(--line);background:var(--card2);color:white;border-radius:14px;padding:0 14px;min-height:46px}
+.primary{background:#087ac2;border-color:#1699e7;font-weight:700}
+.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:20px;padding:15px;margin:12px 0;box-shadow:var(--shadow)}
+.card h2{font-size:15px;margin:0 0 12px;color:#dcecff}
+.hero{display:grid;grid-template-columns:122px 1fr;gap:15px;align-items:center}
+.score{width:118px;height:118px;border-radius:50%;display:grid;place-items:center;position:relative;background:conic-gradient(var(--scoreColor,#36d17c) calc(var(--score,0)*1%),#17324a 0)}
+.score:after{content:"";position:absolute;inset:9px;border-radius:50%;background:#091827}
+.scorein{position:relative;z-index:1;text-align:center}
+.scorein b{font-size:34px;line-height:1}
+.scorein small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+.rating{font-size:17px;font-weight:800;margin-bottom:8px}
+.summary{font-size:13px;color:var(--muted);line-height:1.45}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.metric{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055);border-radius:14px;padding:11px}
+.metric span{display:block;color:var(--muted);font-size:11px;margin-bottom:4px}
+.metric b{font-size:16px}
+.sectiontitle{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sectiontitle h2{margin:0}
+.pill{border:1px solid var(--line);background:#0a1a29;color:#cbe7fb;padding:6px 9px;border-radius:999px;font-size:11px}
+.hours{display:flex;gap:9px;overflow-x:auto;padding:2px 1px 8px;scroll-snap-type:x mandatory}
+.hours::-webkit-scrollbar{display:none}
+.hour{flex:0 0 92px;scroll-snap-align:start;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055);border-radius:15px;padding:10px;text-align:center}
+.hour .time{font-weight:800;font-size:13px}
+.hour .ico{font-size:23px;margin:8px 0}
+.hour .temp{font-size:15px;font-weight:700}
+.hour small{display:block;color:var(--muted);font-size:10px;margin-top:5px}
+.nights{display:grid;gap:8px}
+.night{display:grid;grid-template-columns:78px 1fr 52px;align-items:center;gap:10px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055);border-radius:15px;padding:11px}
+.night .date{font-size:12px;font-weight:750}
+.bar{height:8px;background:#173049;border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:999px}
+.night .num{text-align:right;font-size:16px;font-weight:850}
+.controls{display:grid;grid-template-columns:1fr 120px;gap:10px;align-items:end}
+label{font-size:11px;color:var(--muted)}
+select{width:100%;margin-top:5px;border:1px solid var(--line);background:#0b1a29;color:white;border-radius:12px;padding:11px}
+.status{font-size:12px;color:var(--muted);text-align:center;min-height:17px;margin:7px 0}
+.footerNav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(8px + env(safe-area-inset-bottom));width:min(calc(100% - 24px),736px);display:grid;grid-template-columns:repeat(3,1fr);background:rgba(9,23,37,.94);border:1px solid var(--line);border-radius:18px;padding:7px;backdrop-filter:blur(18px);box-shadow:0 12px 30px #0008;z-index:30}
+.footerNav button{border:0;background:transparent;color:var(--muted);border-radius:12px;padding:9px 4px;font-size:11px}
+.footerNav button b{display:block;color:white;font-size:20px;margin-bottom:2px}
+.modal{display:none;position:fixed;inset:0;background:#02070db8;z-index:40;padding:calc(24px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom));overflow:auto}
+.modal.open{display:block}
+.modalbox{max-width:600px;margin:0 auto;background:#0b1b2b;border:1px solid var(--line);border-radius:22px;padding:16px}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.close{border:0;background:#173149;color:white;width:38px;height:38px;border-radius:12px;font-size:20px}
+.favitem{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid #19344d;padding:11px 2px}
+.favitem:last-child{border:0}
+.favitem button{border:0;border-radius:10px;padding:8px 10px;background:#16304a;color:white}
+.error{color:#ff8890}
+.good{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+@media(max-width:380px){.hero{grid-template-columns:106px 1fr}.score{width:102px;height:102px}.scorein b{font-size:29px}.searchbox{grid-template-columns:1fr auto}.searchbox .gps{grid-column:2}.searchbox .go{grid-column:1/-1}.grid{grid-template-columns:1fr 1fr}}
+
+.diag{display:none;margin:10px 0 14px;padding:12px 14px;border-radius:14px;
+background:#45200f;border:1px solid #a65b24;color:#ffd8b4;font-size:12px;line-height:1.45}
+.diag.show{display:block}
+.testok{background:#103c2b!important;border-color:#2d8c61!important;color:#d8ffe9!important}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brandrow">
+    <div class="brand">Gavvas Astro Analyzer</div>
+    <div class="version">Mobile 1.2 PWA</div>
+  </div>
+  <div class="place" id="placeLine">Ort auswählen</div>
+</header>
+
+<main>
+  <div class="diag" id="diag"></div>
+  <div class="searchbox">
+    <input id="search" autocomplete="off" placeholder="Ort suchen, z. B. Bremerhaven">
+    <button type="button" class="iconbtn gps" id="gpsBtn" aria-label="Standort">⌖</button>
+    <button type="button" class="primary go" id="searchBtn">Suchen</button>
+  </div>
+  <div class="status" id="status"></div>
+
+  <section class="card">
+    <div class="hero">
+      <div class="score" id="scoreRing">
+        <div class="scorein"><b id="score">--</b><small>ASTRO-INDEX</small></div>
+      </div>
+      <div>
+        <div class="rating" id="rating">Noch keine Daten</div>
+        <div class="summary" id="summary">Wähle einen Ort. Danach werden die kommenden Nächte analysiert.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Aktuelle Nacht</h2>
+    <div class="grid">
+      <div class="metric"><span>Bewölkung Ø</span><b id="cloud">--</b></div>
+      <div class="metric"><span>Luftfeuchte Ø</span><b id="humidity">--</b></div>
+      <div class="metric"><span>Temperatur Ø</span><b id="temp">--</b></div>
+      <div class="metric"><span>Taupunkt Ø</span><b id="dew">--</b></div>
+      <div class="metric"><span>Wind Ø</span><b id="wind">--</b></div>
+      <div class="metric"><span>Seeing-Schätzung</span><b id="seeing">--</b></div>
+      <div class="metric"><span>Sonnenuntergang</span><b id="sunset">--</b></div>
+      <div class="metric"><span>Sonnenaufgang</span><b id="sunrise">--</b></div>
+      <div class="metric"><span>Mondphase</span><b id="moon">--</b></div>
+      <div class="metric"><span>Bortle</span><b id="bortleView">4</b></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="sectiontitle"><h2>Stunden 18:00–08:00</h2><span class="pill">horizontal wischen</span></div>
+    <div class="hours" id="hours"><div class="summary">Noch keine Wetterdaten.</div></div>
+  </section>
+
+  <section class="card">
+    <div class="sectiontitle"><h2>Nächste 7 Nächte</h2><span class="pill">Astro-Index</span></div>
+    <div class="nights" id="nights"><div class="summary">Noch keine Analyse.</div></div>
+  </section>
+
+  <section class="card">
+    <h2>Standort-Einstellungen</h2>
+    <div class="controls">
+      <div>
+        <label for="bortle">Bortle-Klasse</label>
+        <select id="bortle">
+          <option value="1">1 – extrem dunkel</option><option value="2">2</option><option value="3">3</option>
+          <option value="4" selected>4 – ländlich</option><option value="5">5</option><option value="6">6</option>
+          <option value="7">7</option><option value="8">8</option><option value="9">9 – Innenstadt</option>
+        </select>
+      </div>
+      <button type="button" class="iconbtn" id="favBtn">☆ Favorit</button>
+    </div>
+    <p class="summary" style="margin-bottom:0">Bortle wird bewusst manuell gesetzt. Eine globale Lichtverschmutzungskarte ist in einer einzelnen HTML-Datei ohne zusätzliche Datendatei nicht zuverlässig verfügbar.</p>
+  </section>
+</main>
+</div>
+
+<nav class="footerNav">
+  <button type="button" id="homeBtn"><b>⌂</b>Analyse</button>
+  <button type="button" id="favoritesBtn"><b>★</b>Favoriten</button>
+  <button type="button" id="refreshBtn"><b>↻</b>Aktualisieren</button>
+</nav>
+
+<div class="modal" id="favModal">
+  <div class="modalbox">
+    <div class="modalhead"><strong>Favoriten</strong><button type="button" class="close" id="closeModal">×</button></div>
+    <div id="favList"></div>
+  </div>
+</div>
+
+<script>
+window.addEventListener('error', function(e){
+  var d=document.getElementById('diag');
+  if(d){d.className='diag show';d.textContent='JavaScript-Fehler: '+(e.message||'unbekannt');}
+});
+const $=id=>document.getElementById(id);
+
+function environmentCheck(){
+  const d=$('diag');
+  const p=location.protocol;
+  if(p==='file:'){
+    d.className='diag show';
+    d.innerHTML='<b>Lokale HTML-Datei erkannt.</b><br>Auf dem iPhone wird eine .html-Datei aus der Dateien-App häufig nur in Quick Look angezeigt. Dort sind JavaScript, GPS oder Internet-Abfragen eingeschränkt. Für Live-Daten diese Datei über HTTPS bzw. in einer echten Web-App öffnen.';
+  } else if(p==='https:' || location.hostname==='localhost' || location.hostname==='127.0.0.1'){
+    d.className='diag testok show';
+    d.textContent='Web-App-Modus aktiv. JavaScript läuft; Live-Daten können abgerufen werden.';
+    setTimeout(()=>d.classList.remove('show'),3500);
+  } else {
+    d.className='diag show';
+    d.textContent='Hinweis: GPS funktioniert auf dem iPhone nur über HTTPS.';
+  }
+}
+
+let selected=null, weather=null, lastSearchTap=0;
+const stateKey='gavvasAstroMobileState', favKey='gavvasAstroFavorites';
+
+function status(t,err=false){$('status').textContent=t;$('status').className='status'+(err?' error':'')}
+function fmt(v,d=0){return Number.isFinite(v)?v.toFixed(d):'--'}
+function clamp(v,a,b){return Math.min(b,Math.max(a,v))}
+function mean(a){let b=a.filter(Number.isFinite);return b.length?b.reduce((x,y)=>x+y,0)/b.length:NaN}
+function scoreClass(s){return s>=75?'good':s>=51?'warn':'bad'}
+function colorFor(s){return s>=86?'#36d17c':s>=75?'#65d56d':s>=51?'#ffcc4d':s>=30?'#ff934d':'#ff5a67'}
+function ratingText(s){
+ if(s<30)return 'Keine Beobachtungschancen';
+ if(s<=40)return 'Eingeschränkt';
+ if(s<=50)return 'Häufig unterbrochen';
+ if(s<=74)return 'Könnte sich lohnen';
+ if(s<=85)return 'Gut';
+ if(s<=95)return 'Sehr gut';
+ return 'Nahezu perfekt';
+}
+function weatherIcon(c){
+ if(c<=10)return '✦'; if(c<=35)return '☾'; if(c<=65)return '☁︎'; return '☁';
+}
+function moonPhase(date=new Date()){
+ const syn=29.53058867, known=Date.UTC(2000,0,6,18,14)/86400000, d=date.getTime()/86400000;
+ let age=((d-known)%syn+syn)%syn, f=age/syn;
+ if(f<.03||f>.97)return 'Neumond';
+ if(f<.22)return 'zunehmend';
+ if(f<.28)return '1. Viertel';
+ if(f<.47)return 'zunehmend';
+ if(f<.53)return 'Vollmond';
+ if(f<.72)return 'abnehmend';
+ if(f<.78)return 'letztes Viertel';
+ return 'abnehmend';
+}
+function lunarPenalty(date){
+ const syn=29.53058867, known=Date.UTC(2000,0,6,18,14)/86400000, d=date.getTime()/86400000;
+ let age=((d-known)%syn+syn)%syn, illum=(1-Math.cos(2*Math.PI*age/syn))/2;
+ return illum*8;
+}
+function astroScore(cloud, hum, wind, date, bortle){
+ let s=100-cloud*.68-Math.max(0,hum-68)*.35-Math.max(0,wind-10)*.9-lunarPenalty(date)-(bortle-1)*1.5;
+ return Math.round(clamp(s,0,100));
+}
+function seeingEstimate(cloud,hum,wind){
+ let x=5 - Math.max(0,wind-4)/8 - Math.max(0,hum-75)/25 - cloud/120;
+ return clamp(x,1,5);
+}
+function saveState(){
+ if(!selected)return;
+ localStorage.setItem(stateKey,JSON.stringify({selected,bortle:$('bortle').value}));
+}
+function loadFavs(){try{return JSON.parse(localStorage.getItem(favKey)||'[]')}catch{return []}}
+function saveFavs(x){localStorage.setItem(favKey,JSON.stringify(x))}
+function updateFavButton(){
+ if(!selected)return;
+ let has=loadFavs().some(f=>Math.abs(f.latitude-selected.latitude)<.0001&&Math.abs(f.longitude-selected.longitude)<.0001);
+ $('favBtn').textContent=has?'★ Favorit':'☆ Favorit';
+}
+async function geocode(q){
+ status('Ort wird gesucht …');
+ const u='https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=8&language=de&format=json';
+ let r;
+ try{r=await fetch(u,{cache:'no-store'});}
+ catch(e){throw Error(location.protocol==='file:'?'Netzwerkzugriff aus lokaler HTML-Datei blockiert':'Keine Verbindung zur Ortssuche');}
+ if(!r.ok)throw Error('Ortssuche fehlgeschlagen ('+r.status+')');
+ const j=await r.json(); if(!j.results?.length)throw Error('Ort nicht gefunden');
+ return j.results[0];
+}
+async function reverseGeo(lat,lon){
+ try{
+   const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${lat.toFixed(3)},${lon.toFixed(3)}&count=1&language=de&format=json`);
+   if(r.ok){const j=await r.json();if(j.results?.[0])return j.results[0]}
+ }catch{}
+ return {name:'Aktueller Standort',latitude:lat,longitude:lon,country:'',timezone:'auto'};
+}
+async function fetchWeather(loc){
+ status('Wetterdaten werden geladen …');
+ const p=new URLSearchParams({
+  latitude:loc.latitude,longitude:loc.longitude,
+  hourly:'temperature_2m,relative_humidity_2m,dew_point_2m,cloud_cover,wind_speed_10m',
+  daily:'sunrise,sunset',timezone:'auto',forecast_days:'8'
+ });
+ let r;
+ try{r=await fetch('https://api.open-meteo.com/v1/forecast?'+p,{cache:'no-store'});}
+ catch(e){throw Error(location.protocol==='file:'?'Netzwerkzugriff aus lokaler HTML-Datei blockiert':'Keine Verbindung zum Wetterdienst');}
+ if(!r.ok)throw Error('Wetterdaten konnten nicht geladen werden ('+r.status+')');
+ weather=await r.json();
+ selected={...loc,timezone:weather.timezone||loc.timezone};
+ render();saveState();status('Daten aktualisiert.');
+}
+function indicesForDate(day){
+ const times=weather.hourly.time, H=weather.hourly;
+ const dt=new Date(day+'T00:00:00');
+ const next=new Date(dt);next.setDate(next.getDate()+1);
+ const nextStr=next.toISOString().slice(0,10);
+ let idx=[];
+ times.forEach((t,i)=>{
+   let d=t.slice(0,10),h=+t.slice(11,13);
+   if((d===day&&h>=18)||(d===nextStr&&h<=8))idx.push(i);
+ });
+ return idx;
+}
+function nightData(day){
+ const I=indicesForDate(day),H=weather.hourly,b=+$('bortle').value;
+ const cloud=mean(I.map(i=>H.cloud_cover[i])), hum=mean(I.map(i=>H.relative_humidity_2m[i]));
+ const temp=mean(I.map(i=>H.temperature_2m[i])), dew=mean(I.map(i=>H.dew_point_2m[i])), wind=mean(I.map(i=>H.wind_speed_10m[i]));
+ return {I,cloud,hum,temp,dew,wind,score:astroScore(cloud,hum,wind,new Date(day+'T23:00:00'),b),seeing:seeingEstimate(cloud,hum,wind)};
+}
+function render(){
+ if(!weather||!selected)return;
+ $('placeLine').textContent=[selected.name,selected.admin1,selected.country].filter(Boolean).join(' · ')+' · '+weather.timezone;
+ $('bortleView').textContent=$('bortle').value;
+ let today=weather.daily.time[0], n=nightData(today), s=n.score;
+ $('score').textContent=s;$('score').className=scoreClass(s);
+ $('scoreRing').style.setProperty('--score',s);$('scoreRing').style.setProperty('--scoreColor',colorFor(s));
+ $('rating').textContent=ratingText(s);$('rating').className='rating '+scoreClass(s);
+ $('summary').textContent=`${fmt(n.cloud)} % Wolken, ${fmt(n.hum)} % Luftfeuchte und ${fmt(n.wind,1)} km/h Wind in der Nacht.`;
+ $('cloud').textContent=fmt(n.cloud)+' %';$('humidity').textContent=fmt(n.hum)+' %';
+ $('temp').textContent=fmt(n.temp,1)+' °C';$('dew').textContent=fmt(n.dew,1)+' °C';$('wind').textContent=fmt(n.wind,1)+' km/h';
+ $('seeing').textContent=fmt(n.seeing,1)+' / 5';
+ $('sunset').textContent=(weather.daily.sunset[0]||'').slice(11,16)||'--';
+ $('sunrise').textContent=(weather.daily.sunrise[1]||weather.daily.sunrise[0]||'').slice(11,16)||'--';
+ $('moon').textContent=moonPhase(new Date());
+ renderHours(today);renderNights();updateFavButton();
+}
+function renderHours(day){
+ const I=indicesForDate(day),H=weather.hourly;
+ $('hours').innerHTML=I.map(i=>`<div class="hour">
+  <div class="time">${H.time[i].slice(11,16)}</div><div class="ico">${weatherIcon(H.cloud_cover[i])}</div>
+  <div class="temp">${fmt(H.temperature_2m[i],1)}°</div>
+  <small>☁ ${fmt(H.cloud_cover[i])}%</small><small>RH ${fmt(H.relative_humidity_2m[i])}%</small>
+ </div>`).join('');
+}
+function renderNights(){
+ $('nights').innerHTML=weather.daily.time.slice(0,7).map((d,k)=>{
+  let n=nightData(d), date=new Date(d+'T12:00:00'), label=k===0?'Heute':date.toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit'});
+  return `<div class="night"><div class="date">${label}</div><div><div class="bar"><i style="width:${n.score}%;background:${colorFor(n.score)}"></i></div>
+  <div style="font-size:10px;color:#91a8bc;margin-top:5px">${fmt(n.cloud)}% Wolken · ${fmt(n.hum)}% RH</div></div><div class="num ${scoreClass(n.score)}">${n.score}</div></div>`;
+ }).join('');
+}
+async function selectByQuery(){
+ const now=Date.now();
+ if(now-lastSearchTap<350)return;
+ lastSearchTap=now;
+ const input=$('search');
+ if(!input){alert('Suchfeld nicht gefunden.');return;}
+ const q=input.value.trim();
+ if(!q){status('Bitte einen Ort eingeben.',true);input.focus();return;}
+ status('Suche gestartet …');
+ try{
+   const r=await geocode(q);
+   selected=r;
+   status('Ort gefunden: '+r.name+'. Wetterdaten werden geladen …');
+   await fetchWeather(r);
+ }catch(e){
+   console.error(e);
+   status('Suche fehlgeschlagen: '+(e && e.message ? e.message : String(e)),true);
+ }
+}
+function useGPS(){
+ if(!navigator.geolocation){status('GPS wird von diesem Browser nicht unterstützt.',true);return}
+ if(location.protocol!=='https:' && location.hostname!=='localhost' && location.hostname!=='127.0.0.1'){
+   status('GPS benötigt auf dem iPhone eine HTTPS-Webseite.',true); return;
+ }
+ status('Standort wird bestimmt …');
+ navigator.geolocation.getCurrentPosition(async p=>{
+   try{
+    selected={name:'Aktueller Standort',latitude:p.coords.latitude,longitude:p.coords.longitude,country:'',timezone:'auto'};
+    await fetchWeather(selected);
+   }catch(e){status('Abruf fehlgeschlagen: '+e.message,true)}
+ },e=>status('Standort konnte nicht bestimmt werden: '+(e.message||'keine Freigabe'),true),
+ {enableHighAccuracy:true,timeout:12000,maximumAge:60000});
+}
+function refreshData(){
+ if(!selected){status('Bitte zuerst einen Ort auswählen.',true);return}
+ fetchWeather(selected).catch(e=>status('Abruf fehlgeschlagen: '+e.message,true));
+}
+function goHome(){window.scrollTo({top:0,behavior:'smooth'})}
+function toggleFavorite(){
+ if(!selected){status('Bitte zuerst einen Ort auswählen.',true);return}
+ let f=loadFavs(),i=f.findIndex(x=>Math.abs(x.latitude-selected.latitude)<.0001&&Math.abs(x.longitude-selected.longitude)<.0001);
+ if(i>=0)f.splice(i,1);else f.unshift(selected);
+ saveFavs(f.slice(0,20));updateFavButton();
+}
+function closeFavs(){$('favModal').classList.remove('open')}
+
+function showFavs(){
+ let f=loadFavs();$('favList').innerHTML=f.length?f.map((x,i)=>`<div class="favitem"><div><b>${x.name}</b><div style="font-size:11px;color:#91a8bc">${[x.admin1,x.country].filter(Boolean).join(' · ')}</div></div>
+ <div><button onclick="openFav(${i})">Öffnen</button> <button onclick="delFav(${i})">×</button></div></div>`).join(''):'<div class="summary">Noch keine Favoriten gespeichert.</div>';
+ $('favModal').classList.add('open');
+}
+window.openFav=async i=>{let x=loadFavs()[i];$('favModal').classList.remove('open');selected=x;await fetchWeather(x).catch(e=>status(e.message,true))}
+window.delFav=i=>{let f=loadFavs();f.splice(i,1);saveFavs(f);showFavs();updateFavButton()}
+
+function bindControls(){
+ const sb=$('searchBtn'), input=$('search'), gps=$('gpsBtn'), bortle=$('bortle');
+ const refresh=$('refreshBtn'), home=$('homeBtn'), fav=$('favBtn');
+ const favs=$('favoritesBtn'), close=$('closeModal');
+
+ if(sb){
+   sb.addEventListener('click', function(e){
+     e.preventDefault();
+     selectByQuery();
+   });
+   // Extra iOS touch fallback for odd embedded viewers.
+   sb.addEventListener('touchend', function(e){
+     e.preventDefault();
+     selectByQuery();
+   }, {passive:false});
+ }
+ if(input) input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();selectByQuery();}});
+ if(gps) gps.addEventListener('click',useGPS);
+ if(bortle) bortle.addEventListener('change',()=>{render();saveState()});
+ if(refresh) refresh.addEventListener('click',refreshData);
+ if(home) home.addEventListener('click',goHome);
+ if(fav) fav.addEventListener('click',toggleFavorite);
+ if(favs) favs.addEventListener('click',showFavs);
+ if(close) close.addEventListener('click',closeFavs);
+
+ if(!sb) status('Fehler: Suchen-Schaltfläche wurde nicht gefunden.',true);
+}
+
+$('favModal').addEventListener('click',e=>{if(e.target===$('favModal'))closeFavs()});
+
+(async()=>{
+ bindControls();
+ environmentCheck();
+ try{
+  const st=JSON.parse(localStorage.getItem(stateKey)||'null');
+  if(st?.bortle)$('bortle').value=st.bortle;
+  if(st?.selected){selected=st.selected;await fetchWeather(selected)}
+  else{$('search').value='Bremerhaven';await selectByQuery()}
+ }catch(e){status('Startdaten konnten nicht geladen werden. Ort bitte manuell suchen.',true)}
+})();
+
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Service Worker:', err));
+  });
+}
+</script>
+</body>
+</html>
